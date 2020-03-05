@@ -6,6 +6,20 @@ const bodyParser = require('body-parser')// for send the data to  maybe post man
 const mongoose = require('mongoose')
 require('dotenv').config()// acces to the variables in .env
 
+// connect mongoDB (database)
+
+mongoose.connect(process.env.DATABASE,{
+    useNewUrlParser:true,
+    useFindAndModify:false,
+    useUnifiedTopology:true,
+    useCreateIndex:true
+})
+.then(()=> console.log('DB connected'))
+.catch(err => console.log('DB FAILED ERROR:', err))
+
+
+
+
 
 //import routes
 const authRoutes = require('./routes/auth')
