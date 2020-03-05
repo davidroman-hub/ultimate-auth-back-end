@@ -3,7 +3,7 @@ const app = express()
 
 app.get('/api/signup', (req,res) => {
     res.json({
-        data:'you hit signup endpoint'
+        data:'you hit signup endpoints'
     })
 })
 
