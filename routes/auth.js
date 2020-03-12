@@ -3,6 +3,14 @@ const router = express.Router()
 
 // import controller
 
+
+
+
+// import validators
+const {userSignupValidator} =require('../validators/auth')
+const {runValidation} =require('../validators/index')
+
+
 const{
     
     signup,
@@ -10,7 +18,7 @@ const{
 } = require('../controllers/auth')
 
 
-router.post('/signup', signup)
+router.post('/signup', userSignupValidator, runValidation, signup)
 
 
 module.exports = router // {}
