@@ -1,4 +1,4 @@
-const mongoose = require('mongodb')
+const mongoose = require('mongoose')
 const crypto = require('crypto')
 
 // user Schema
