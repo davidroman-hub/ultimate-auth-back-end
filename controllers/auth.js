@@ -1,38 +1,61 @@
 
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const {errorHandler} = require('../helpers/dbErrorHandler')
+
+
 
 /// normal sign up without message auth
+// exports.signup = (req, res) => {
+//         // console.log('REQ BODY ON SIGNUP', req.body);
+//         const { name, email, password } = req.body;
+    
+//         User.findOne({ email }).exec((err, user) => {
+//             if (user) {
+//                 return res.status(400).json({
+//                     error: 'Email is taken'
+//                 });
+//             }
+//         });
+    
+//         let newUser = new User({ name, email, password });
+    
+//         newUser.save((err, success) => {
+//             if (err) {
+//                 console.log('SIGNUP ERROR', err);
+//                 return res.status(400).json({
+//                     error: err
+//                 });
+//             }
+//             res.json({
+//                 message: 'Signup success! Please signin'
+//             });
+//         });
+//     };
+
+
+//// funciona perfecto ////
+
 
 exports.signup = (req, res) => {
-  //  console.log('req body on signup', req.body)
-  
-// the values that we gonna use
-const {name, email, password} = req.body
-
-// to only one user for one email address
-User.findOne({email}).exec((err, user) => {
-if(user){
-    return res.status(400).json({
-        error:'Email is taken chose another'
-            })
+    //console.log('req.body', req.body);
+    const user = new User(req.body);
+    user.save((err, user) => {
+        if (err){
+            console.log('SIGNUP ERROR', err);
+                return res.status(400).json({
+                    error: 'Email is taken'
+            });
         }
-    })
-    let newUser = new User({name, email, password})
-
-    // set in the data base 
-    newUser.save((err, success) => {
-        if(err){
-            console.log('sign up ERROR', err)
-            return res.status(400).json({
-                error:err
-            })
-        }
+        user.salt = undefined
+        user.hashed_password = undefined
         res.json({
-            message:'Sign up success!'
+            message: 'Signup success! Please signin'
         })
-    })
-}
+    } )
+};
+
+
 
 /**
  * if you used approach signup user in real world app

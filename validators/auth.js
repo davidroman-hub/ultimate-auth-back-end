@@ -1,26 +1,24 @@
 
-const {check} = require("express-validator")
+const { check } = require('express-validator');
 
 exports.userSignupValidator = [
     check('name')
-    .not()
-    .isEmpty()
-    .withMessage('Name is required'),
+        .not()
+        .isEmpty()
+        .withMessage('Name is required'),
     check('email')
-    .isEmail()
-    .withMessage('Must be a valid email address'),
+        .isEmail()
+        .withMessage('Must be a valid email address'),
     check('password')
-    .isLength({min:6})
-    .withMessage('Password must have 6 characters')
+        .isLength({ min: 6 })
+        .withMessage('Password must be at least  6 characters long')
 ];
 
-
 exports.userSigninValidator = [
-    
     check('email')
-    .isEmail()
-    .withMessage('Must be a valid email address'),
+        .isEmail()
+        .withMessage('Must be a valid email address'),
     check('password')
-    .isLength({min:6})
-    .withMessage('Password must have 6 characters')
+        .isLength({ min: 6 })
+        .withMessage('Password must be at least  6 characters long')
 ];
