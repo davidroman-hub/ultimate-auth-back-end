@@ -2,7 +2,7 @@
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const {errorHandler} = require('../helpers/dbErrorHandler')
-
+const expressJwt = require('express-jwt')
 
 
 /// normal sign up without message auth
@@ -95,11 +95,6 @@ exports.signup = (req, res) => {
  * 
  */
 
-
-
-
-
-
 exports.signin = (req,res) => {
     const {email, password} = req.body
     // check if the user exist
@@ -125,3 +120,7 @@ exports.signin = (req,res) => {
              })
         })
 }
+
+exports.requireSignin = expressJwt({
+    secret: process.env.JWT_SECRET // req.user._id //<<== esasy for search the users
+})

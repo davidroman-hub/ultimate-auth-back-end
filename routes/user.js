@@ -5,12 +5,13 @@ const router = express.Router()
 
 
 const{ read } = require('../controllers/user')
-
+const { requireSignin} = require('../controllers/auth')
 
 
 //routes
 
-router.get('/user/:id', read)
+router.get('/user/:id', requireSignin , read)
+
 
 
 
