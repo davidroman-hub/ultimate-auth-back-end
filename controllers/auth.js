@@ -124,3 +124,22 @@ exports.signin = (req,res) => {
 exports.requireSignin = expressJwt({
     secret: process.env.JWT_SECRET // req.user._id //<<== esasy for search the users
 })
+
+// to block some funtionalities for the user like a upload, but you can block whatever you Want
+
+exports.adminMiddleware = (req,res,next) => {
+    User.findById({ _id: req.user._id}).exec((err,user)=>{
+        if (err || !user){
+            return res.status(400).json({
+                error:'User not found'
+            })
+        }
+        if (user.role !== 'admin'){
+            return res.status(400).json({
+                error:'Admin resource. Access denied'
+            })
+        }
+        req.profile = user
+        next()
+    })
+}

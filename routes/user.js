@@ -5,13 +5,14 @@ const router = express.Router()
 
 
 const{ read, update } = require('../controllers/user')
-const { requireSignin} = require('../controllers/auth')
+const { requireSignin, adminMiddleware} = require('../controllers/auth')
 
 
 //routes
 
 router.get('/user/:id', requireSignin , read)
-router.put('/user/update', requireSignin , update)
+router.put('/user/update', requireSignin ,  update)
+router.put('/admin/update', requireSignin , adminMiddleware, update)
 
 
 
