@@ -10,6 +10,8 @@ exports.read = (req,res) => {
                 error:'User not found'
             })
         } 
+        user.hashed_password = undefined
+        user.salt = undefined
         res.json(user)
     })
 }
