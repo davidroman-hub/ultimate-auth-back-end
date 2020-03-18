@@ -3,7 +3,7 @@ const router = express.Router()
 
 // import controller
 
-
+const{ signup, signin} = require('../controllers/auth')
 
 
 // import validators
@@ -11,7 +11,7 @@ const {userSignupValidator, userSigninValidator} =require('../validators/auth')
 const {runValidation} =require('../validators/index')
 
 
-const{ signup, signin} = require('../controllers/auth')
+
 
 
 
