@@ -51,46 +51,90 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 // the new sign up for the auth with email sendgrid
 // we need to use the package @sengrid/email
  
-exports.signup = (req,res) =>{
-     const {name,email, password} = req.body
 
-    User.findOne({ email}).exec((err,user)=>{
-        if(user){
+exports.signup = (req, res) => {
+    const { name, email, password } = req.body;
+
+    User.findOne({ email }).exec((err, user) => {
+        if (user) {
             return res.status(400).json({
-                error:'email is taken'
-            })
+                error: 'Email is taken'
+            });
         }
 
-        const token = jwt.sign({name, email, password}, process.env.JWT_ACCOUNT_ACTIVATION, {expiresIn:'30m'})
-        // and this we have to send to the email user:
-        const emailData = { 
+        const token = jwt.sign({ name, email, password }, process.env.JWT_ACCOUNT_ACTIVATION, { expiresIn: '10m' });
+
+        const emailData = {
             from: process.env.EMAIL_FROM,
-            to:email,
-            subject:`Account activation link`,
-            html:`
-            <h1> Please use  the follow link to actuvate your account </h1>
-            <p> ${process.env.CLIENT_URL}/auth/activate/${token}</p>
-            <hr/>
-            <p>This email contain sensetive information</p>
-            <p>${process.env.CLIENT_URL}</p>
+            to: email,
+            subject: `Account activation link`,
+            html: `
+                <h1>Please use the following link to activate your account</h1>
+                <p>${process.env.CLIENT_URL}/auth/activate/${token}</p>
+                <hr />
+                <p>This email may contain sensetive information</p>
+                <p>${process.env.CLIENT_URL}</p>
             `
-        }
-        sgMail.send(emailData).then(
-            sent => {
-                //console.log('signuo email sent', sent)
+        };
+
+        sgMail
+            .send(emailData)
+            .then(sent => {
+                // console.log('SIGNUP EMAIL SENT', sent)
                 return res.json({
-                    message:`Email has been sent to ${email}, Follow the instructions to activate your account`
-                })
+                    message: `Email has been sent to ${email}. Follow the instruction to activate your account`
+                });
+            })
+            .catch(err => {
+                // console.log('SIGNUP EMAIL SENT ERROR', err)
+                return res.json({
+                    message: err.message
+                });
+            });
+    });
+};
+
+
+// account activation afetr the email 
+
+exports.accountActivation = (req, res) => {
+    const { token } = req.body;
+
+    if (token) {
+        jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION, function(err, decoded) {
+            if (err) {
+                console.log('JWT VERIFY IN ACCOUNT ACTIVATION ERROR', err);
+                return res.status(401).json({
+                    error: 'Expired link. Signup again'
+                });
             }
-        )
-        .catch(err => {
-             //console.log('signuo email sent Error', err)
-             return res.json({
-                 message: err.message
-             })
-        })
-    })
- }
+
+            const { name, email, password } = jwt.decode(token);
+
+            const user = new User({ name, email, password });
+
+            user.save((err, user) => {
+                if (err) {
+                    console.log('SAVE USER IN ACCOUNT ACTIVATION ERROR', err);
+                    return res.status(401).json({
+                        error: 'Error saving user in database. Try signup again'
+                    });
+                }
+                return res.json({
+                    message: 'Signup success. Please signin.'
+                });
+            });
+        });
+    } else {
+        return res.json({
+            message: 'Something went wrong. Try again.'
+        });
+    }
+};
+
+
+
+
 
 
 /// Sign in ///
