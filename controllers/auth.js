@@ -3,57 +3,32 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const {errorHandler} = require('../helpers/dbErrorHandler')
 const expressJwt = require('express-jwt')
+// sengrid
 
-
-/// normal sign up without message auth
-// exports.signup = (req, res) => {
-//         // console.log('REQ BODY ON SIGNUP', req.body);
-//         const { name, email, password } = req.body;
-    
-//         User.findOne({ email }).exec((err, user) => {
-//             if (user) {
-//                 return res.status(400).json({
-//                     error: 'Email is taken'
-//                 });
-//             }
-//         });
-    
-//         let newUser = new User({ name, email, password });
-    
-//         newUser.save((err, success) => {
-//             if (err) {
-//                 console.log('SIGNUP ERROR', err);
-//                 return res.status(400).json({
-//                     error: err
-//                 });
-//             }
-//             res.json({
-//                 message: 'Signup success! Please signin'
-//             });
-//         });
-//     };
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 
 //// funciona perfecto ////
 
 
-exports.signup = (req, res) => {
-    //console.log('req.body', req.body);
-    const user = new User(req.body);
-    user.save((err, user) => {
-        if (err){
-            console.log('SIGNUP ERROR', err);
-                return res.status(400).json({
-                    error: 'Email is taken'
-            });
-        }
-        user.salt = undefined
-        user.hashed_password = undefined
-        res.json({
-            message: 'Signup success! Please signin'
-        })
-    } )
-};
+// exports.signup = (req, res) => {
+//     //console.log('req.body', req.body);
+//     const user = new User(req.body);
+//     user.save((err, user) => {
+//         if (err){
+//             console.log('SIGNUP ERROR', err);
+//                 return res.status(400).json({
+//                     error: 'Email is taken'
+//             });
+//         }
+//         user.salt = undefined
+//         user.hashed_password = undefined
+//         res.json({
+//             message: 'Signup success! Please signin'
+//         })
+//     } )
+// };
 
 
 
@@ -76,9 +51,46 @@ exports.signup = (req, res) => {
 // the new sign up for the auth with email sendgrid
 // we need to use the package @sengrid/email
  
-// exports.signup = (req,res) =>{
-//      //
-//  }
+exports.signup = (req,res) =>{
+     const {name,email, password} = req.body
+
+    User.findOne({ email}).exec((err,user)=>{
+        if(user){
+            return res.status(400).json({
+                error:'email is taken'
+            })
+        }
+
+        const token = jwt.sign({name, email, password}, process.env.JWT_ACCOUNT_ACTIVATION, {expiresIn:'30m'})
+        // and this we have to send to the email user:
+        const emailData = { 
+            from: process.env.EMAIL_FROM,
+            to:email,
+            subject:`Account activation link`,
+            html:`
+            <h1> Please use  the follow link to actuvate your account </h1>
+            <p> ${process.env.CLIENT_URL}/auth/activate/${token}</p>
+            <hr/>
+            <p>This email contain sensetive information</p>
+            <p>${process.env.CLIENT_URL}</p>
+            `
+        }
+        sgMail.send(emailData).then(
+            sent => {
+                //console.log('signuo email sent', sent)
+                return res.json({
+                    message:`Email has been sent to ${email}, Follow the instructions to activate your account`
+                })
+            }
+        )
+        .catch(err => {
+             //console.log('signuo email sent Error', err)
+             return res.json({
+                 message: err.message
+             })
+        })
+    })
+ }
 
 
 /// Sign in ///
@@ -126,7 +138,7 @@ exports.requireSignin = expressJwt({
 })
 
 // to block some funtionalities for the user like a upload, but you can block whatever you Want
-
+//Restrict !
 exports.adminMiddleware = (req,res,next) => {
     User.findById({ _id: req.user._id}).exec((err,user)=>{
         if (err || !user){
