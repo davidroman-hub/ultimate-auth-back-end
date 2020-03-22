@@ -208,7 +208,7 @@ exports.forgotPassword = (req,res) => {
     User.findOne({email},(err,user) => {
         if(err || !user){
             return res.status(400).json({
-                error: "User with that email doent not exist"
+                error: "User with that email does not exist"
             })
         } 
         const token = jwt.sign({ _id: user._id}, process.env.JWT_RESET_PASSWORD, { expiresIn: '10m' });
@@ -216,7 +216,7 @@ exports.forgotPassword = (req,res) => {
         const emailData = {
             from: process.env.EMAIL_FROM,
             to: email,
-            subject: `PASSWORD RESET link`,
+            subject: `Password Reset link`,
             html: `
                 <h1>Please use the following link to reset your password</h1>
                 <p>${process.env.CLIENT_URL}/auth/password/reset/${token}</p>
