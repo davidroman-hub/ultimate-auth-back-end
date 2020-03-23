@@ -8,7 +8,8 @@ const{ signup,
     signin,
     forgotPassword,
     resetPassword,
-    googleLogin
+    googleLogin, 
+    facebookLogin
 
     } = require('../controllers/auth')
 
@@ -28,6 +29,7 @@ router.put('/reset-password', resetPasswordValidator, runValidation, resetPasswo
 /// google and facebook auth
 
 router.post('/google-login', googleLogin)
+router.post('/facebook-login', facebookLogin)
 
 
 
